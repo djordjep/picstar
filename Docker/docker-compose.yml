@@ -1,0 +1,59 @@
+version: "3.7"
+services:
+  app:
+    build:
+      args:
+        user: djordje
+        uid: 1000
+      context: ./
+      dockerfile: Dockerfile
+    image: picstar
+    environment:
+      - COMPOSER_MEMORY_LIMIT=-1
+      - PHP_POST_MAX_SIZE=50M
+    container_name: picstar-api
+    restart: unless-stopped
+    working_dir: /var/www/
+    volumes:
+      - ../:/var/www
+    networks:
+      - picstar
+
+  db:
+    image: mysql:5.7
+    container_name: picstar-db
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: ${DB_DATABASE}
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
+      MYSQL_PASSWORD: ${DB_PASSWORD}
+      MYSQL_USER: ${DB_USERNAME}
+      SERVICE_TAGS: dev
+      SERVICE_NAME: mysql
+    ports:
+      - "3306:3306"
+    volumes:
+      - ./mysql:/docker-entrypoint-initdb.d
+      - ./mysql/data:/var/lib/mysql
+      - ./mysql/conf.d:/etc/mysql/conf.d
+    networks:
+      - picstar
+
+  nginx:
+    image: nginx:alpine
+    container_name: picstar-nginx
+    restart: unless-stopped
+    ports:
+      - 80:80
+    volumes:
+      - ../:/var/www
+      - ./nginx:/etc/nginx/conf.d/
+    networks:
+      - picstar
+    environment:
+      CLIENT_MAX_BODY_SIZE: 100M
+      GLOBAL_MAX_BODY_SIZE: 100M
+
+networks:
+  picstar:
+    driver: bridge
