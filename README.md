@@ -47,3 +47,7 @@ to enter container and then
 ```
 composer test
 ```
+
+## HTTP2
+
+enable ssl in `Docker/nginx/picstar.conf`
