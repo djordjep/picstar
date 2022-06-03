@@ -26,6 +26,8 @@ docker exec -it <CONTAINER ID> /bin/bash
 then
 
 ```
+composer install
+
 php artisan migrate:fresh --seed
 ```
 
